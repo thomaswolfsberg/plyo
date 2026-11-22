@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plyo">
+<meta name="theme-color" content="#111210">
+<title>Plyo træningslog</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: kort, sporty og konkret – en træner med clipboard.
+   IDEA: et springfelt med kridtstreger – hver landing er en tælling.
+   PICTURE: ugens fodkontakter som stort tal + stregmåler mod målet; selve loggen er resten.
+   COLOUR and TYPE: kridthvid/sort med én volt-gul; Barlow Condensed til tal, Inter til tekst.
+   LAYOUT: én kolonne, fast bundnavigation, session som fuldskærmsark. */
+:root{color-scheme:light dark;--bg:light-dark(#f4f4ef,#111210);--card:light-dark(#fff,#1b1c19);--ink:light-dark(#111210,#f1f1ea);--mute:light-dark(#62635c,#9c9d94);--line:light-dark(#dcdcd3,#2d2e2a);--volt:#d9f53a;--voltInk:#111210;--warn:light-dark(#c2361c,#ff7a5c)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;overflow-x:clip;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+main{max-width:640px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 16px 24px}
+h1,h2,.num{font-family:"Barlow Condensed",Inter,sans-serif;font-weight:700;line-height:1.05;margin:0}
+h1{font-size:36px}h2{font-size:24px;margin:28px 0 10px}
+.mute{color:var(--mute);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.hero{background:var(--ink);color:var(--bg);border:0;padding:20px}
+.hero .mute{color:color-mix(in srgb,var(--bg) 65%,transparent)}
+.big{font-size:clamp(64px,22vw,104px);color:var(--volt)}
+.meter{height:14px;border-radius:7px;background:color-mix(in srgb,var(--bg) 18%,transparent);position:relative;overflow:hidden;margin:12px 0 6px}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--volt);border-radius:7px}
+.meter b{position:absolute;top:0;bottom:0;width:2px;background:var(--bg)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+button,.btn{font:inherit;font-weight:600;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--volt);outline-offset:2px}
+.pri{background:var(--volt);color:var(--voltInk);border-color:var(--volt)}
+.wide{width:100%;min-height:56px;font-size:18px}
+.ghost{background:transparent;border-color:transparent;color:var(--mute)}
+.danger{color:var(--warn)}
+.sm{min-height:36px;padding:0 12px;font-size:14px}
+input,select,textarea{font:inherit;font-size:16px;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);padding:8px 10px;width:100%}
+textarea{min-height:80px;resize:vertical}
+label{display:block;font-size:14px;color:var(--mute);margin:10px 0 4px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:120px;margin-top:8px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.bars span{width:100%;background:var(--ink);border-radius:5px 5px 2px 2px;min-height:2px}
+.bars .now span{background:var(--volt);outline:1px solid var(--line)}
+.bars small{font-size:11px;color:var(--mute);white-space:nowrap}
+.bars em{font-style:normal;font-size:11px;font-weight:600}
+nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{border:0;border-radius:0;background:none;min-height:60px;font-size:13px;color:var(--mute);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+nav button[aria-current=page]{color:var(--ink)}
+nav button[aria-current=page] svg{background:var(--volt);color:var(--voltInk);border-radius:9px}
+nav svg{width:34px;height:24px;padding:2px 7px}
+.sheet{position:fixed;inset:0;background:var(--bg);z-index:10;overflow-y:auto;padding:calc(12px + env(safe-area-inset-top)) 0 calc(24px + env(safe-area-inset-bottom))}
+.sheet main{padding-top:0}
+.top{position:sticky;top:0;background:var(--bg);padding:8px 0 10px;z-index:2;border-bottom:1px solid var(--line);margin-bottom:12px}
+.set{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 0;border-top:1px dashed var(--line)}
+.step{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.step button{border:0;border-radius:0;min-width:44px;padding:0;font-size:20px}
+.step output{min-width:34px;text-align:center;font-weight:600}
+.set input{min-height:40px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{min-width:44px;padding:0 10px}
+.chips button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pick{display:flex;width:100%;text-align:left;align-items:center;gap:10px;margin-bottom:6px;font-weight:500}
+.dots{letter-spacing:2px;color:var(--mute);font-size:12px;white-space:nowrap}
+.dots b{color:var(--ink)}
+details.card summary{list-style:none;cursor:pointer;display:flex;gap:10px;align-items:baseline}
+details.card summary::-webkit-details-marker{display:none}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td,th{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left}
+td.r,th.r{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.note{background:color-mix(in srgb,var(--volt) 35%,var(--card));color:var(--ink);border-radius:12px;padding:10px 14px;font-size:14px;margin-bottom:12px}
+.empty{text-align:center;padding:32px 16px;color:var(--mute)}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:20;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<main id="main"></main>
+<div id="sheet"></div>
+<nav id="nav">
+  <button data-go="idag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16M7 16l3-8 4 5 3-6"/></svg>I dag</button>
+  <button data-go="historik"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 6h14M5 12h14M5 18h9"/></svg>Historik</button>
+  <button data-go="fremgang"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 20V12M12 20V6M19 20v-9"/></svg>Fremgang</button>
+  <button data-go="mere"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>Mere</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+{
+const KEY='plyo.v1';
+const LEVELS={begynder:[80,100],oevet:[100,120],erfaren:[120,140]};
+const LVLNAME={begynder:'Begynder',oevet:'Øvet',erfaren:'Erfaren'};
+const UNIT={height:'cm højde',distance:'cm længde'};
+const DEF_EX=[
+ ['cmj','Countermovement jump','ben',1,'height',0],['pogo','Pogo hop','ben',1,null,0],['lat','Sidehop over linje','ben',1,null,0],
+ ['box','Box jump','ben',2,'height',0],['broad','Længdespring','ben',2,'distance',0],['tuck','Tuck jump','ben',2,null,0],
+ ['skater','Skater jump','ben',2,'distance',1],['hurdle','Hækkehop','ben',2,'height',0],['depth','Depth jump','ben',3,'height',0],
+ ['bound','Bounding','ben',3,'distance',0],['slhop','Etbens-hop','ben',3,'distance',1],
+ ['mbchest','Medicinbold brystkast','overkrop',1,'distance',0],['mbslam','Medicinbold slam','overkrop',1,null,0],['pushup','Plyo armstrække','overkrop',2,null,0]
+].map(([id,name,cat,lvl,metric,side])=>({id,name,cat,lvl,metric,side:!!side}));
+
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+const addDays=(iso,n)=>{const d=new Date(iso+'T12:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+const monday=iso=>{const d=new Date(iso+'T12:00');const w=(d.getDay()+6)%7;return addDays(iso,-w)};
+const fmtDate=iso=>new Date(iso+'T12:00').toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'short'});
+const weekNo=iso=>{const d=new Date(iso+'T12:00');d.setDate(d.getDate()+3-(d.getDay()+6)%7);const y=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-y)/864e5-3+(y.getDay()+6)%7)/7)};
+
+function seed(){
+  const t=today(),mk=(off,items,rpe,note)=>({id:uid(),date:addDays(t,off),items:items.map(([ex,sets])=>({ex,sets:sets.map(([r,v])=>({r,v:v??''}))})),rpe,note,sample:true});
+  return [
+    mk(-15,[['pogo',[[10],[10],[10]]],['cmj',[[5,38],[5,40]]],['broad',[[5,215],[5,220]]],['lat',[[10],[10]]]],6,'Første uge, rolig opstart'),
+    mk(-11,[['pogo',[[10],[10]]],['box',[[5,60],[5,60],[5,65]]],['broad',[[5,222],[5,225]]],['mbchest',[[6,540],[6,560]]]],7,''),
+    mk(-6,[['cmj',[[5,41],[5,42]]],['box',[[5,65],[5,65],[5,70]]],['skater',[[6,180],[6,185]]],['tuck',[[6],[6]]]],7,'Benene friske'),
+    mk(-2,[['pogo',[[12],[12]]],['broad',[[5,228],[5,231]]],['hurdle',[[6,50],[6,50],[6,50]]],['pushup',[[6],[6]]]],8,'Ny PR i længdespring')
+  ];
+}
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!Array.isArray(S.sessions))S={sessions:seed(),custom:[],level:'begynder',draft:null};
+S.custom=S.custom||[];
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Kunne ikke gemme på enheden')}};
+save();
+
+const allEx=()=>DEF_EX.concat(S.custom);
+const exById=id=>allEx().find(e=>e.id===id)||{id,name:'Ukendt øvelse',cat:'ben',lvl:1,metric:null,side:false};
+const itemContacts=it=>{const e=exById(it.ex);return it.sets.reduce((a,s)=>a+(+s.r||0),0)*(e.side?2:1)};
+const contacts=s=>s.items.reduce((a,it)=>a+itemContacts(it),0);
+const sorted=()=>S.sessions.slice().sort((a,b)=>b.date.localeCompare(a.date));
+const weekTotals=n=>{const m=monday(today());return Array.from({length:n},(_,i)=>{const start=addDays(m,-7*(n-1-i)),end=addDays(start,7);const ss=S.sessions.filter(s=>s.date>=start&&s.date<end);return{start,c:ss.reduce((a,s)=>a+contacts(s),0),n:ss.length}})};
+function prs(){const best={};for(const s of S.sessions)for(const it of s.items){const e=exById(it.ex);if(!e.metric)continue;for(const st of it.sets){const v=parseFloat(st.v);if(!(v>0))continue;if(!best[e.id]||v>best[e.id].v)best[e.id]={v,date:s.date,e}}}return Object.values(best).sort((a,b)=>b.date.localeCompare(a.date))}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2200)}
+
+let view='idag',A=S.draft,pickOpen=false;
+const main=document.getElementById('main'),sheet=document.getElementById('sheet');
+
+function barsHTML(weeks){const max=Math.max(1,...weeks.map(w=>w.c));return `<div class="bars">${weeks.map((w,i)=>`<div class="${i===weeks.length-1?'now':''}"><em>${w.c||''}</em><span style="height:${w.c/max*100}%"></span><small>u${weekNo(w.start)}</small></div>`).join('')}</div>`}
+
+function vIdag(){
+  const [lo,hi]=LEVELS[S.level],wk=weekTotals(6),cur=wk[5],last=sorted()[0];
+  const lastC=last?contacts(last):0,pct=Math.min(100,lastC/(hi*1.2)*100);
+  return `${S.sessions.some(s=>s.sample)?`<div class="note">Appen er fyldt med eksempeldata, så du kan se hvordan den virker. <button class="sm" data-act="clearSample">Fjern eksempler</button></div>`:''}
+  <div class="row" style="margin-bottom:14px"><h1>Plyo</h1><span class="sp"></span><span class="mute">${LVLNAME[S.level]} · ${lo}–${hi} kontakter/session</span></div>
+  <div class="card hero">
+    <div class="mute">Fodkontakter denne uge · ${cur.n} ${cur.n===1?'session':'sessioner'}</div>
+    <div class="num big">${cur.c}</div>
+    ${last?`<div class="mute">Seneste session ${fmtDate(last.date)}: <b style="color:var(--volt)">${lastC}</b> kontakter${last.rpe?` · RPE ${last.rpe}`:''}</div>
+    <div class="meter" title="Seneste session mod målet"><i style="width:${pct}%"></i><b style="left:${lo/(hi*1.2)*100}%"></b><b style="left:${hi/(hi*1.2)*100}%"></b></div>
+    <div class="mute">Stregerne markerer dit mål på ${lo}–${hi}</div>`:'<div class="mute">Ingen sessioner endnu</div>'}
+  </div>
+  <button class="pri wide" data-act="${A?'resume':'start'}">${A?'Fortsæt igangværende session':'Start ny session'}</button>
+  <h2>Seneste 6 uger</h2><div class="card">${barsHTML(wk)}</div>
+  ${prs().length?`<h2>Rekorder</h2><div class="card"><table>${prs().slice(0,4).map(p=>`<tr><td>${esc(p.e.name)}</td><td class="r"><b>${p.v}</b> cm</td><td class="r mute">${fmtDate(p.date)}</td></tr>`).join('')}</table></div>`:''}`;
+}
+
+function vHistorik(){
+  const ss=sorted();
+  if(!ss.length)return `<h1>Historik</h1><div class="empty">Ingen sessioner endnu.<br><br><button class="pri" data-act="start">Start din første</button></div>`;
+  return `<h1>Historik</h1><p class="mute">${ss.length} sessioner · ${ss.reduce((a,s)=>a+contacts(s),0)} kontakter i alt</p>`+ss.map(s=>`<details class="card"><summary><b>${fmtDate(s.date)}</b><span class="sp"></span><span class="num" style="font-size:22px">${contacts(s)}</span><span class="mute">kontakter</span></summary>
+    <table style="margin-top:10px">${s.items.map(it=>{const e=exById(it.ex);return `<tr><td>${esc(e.name)}${e.side?' <span class="mute">(pr. ben)</span>':''}<div class="mute">${it.sets.map(x=>x.r+(x.v?` @ ${esc(x.v)}`:'')).join(' · ')}</div></td><td class="r">${itemContacts(it)}</td></tr>`}).join('')}</table>
+    ${s.rpe||s.note?`<p class="mute">${s.rpe?`RPE ${s.rpe}`:''}${s.rpe&&s.note?' · ':''}${esc(s.note)}</p>`:''}
+    <div class="row" style="margin-top:8px"><button class="sm" data-act="edit" data-id="${s.id}">Redigér</button><button class="sm" data-act="dup" data-id="${s.id}">Gentag</button><span class="sp"></span><button class="sm ghost danger" data-act="del" data-id="${s.id}" data-confirm>Slet</button></div></details>`).join('');
+}
+
+function vFremgang(){
+  const wk=weekTotals(12),p=prs(),rp=S.sessions.filter(s=>s.rpe),avg=rp.length?(rp.reduce((a,s)=>a+s.rpe,0)/rp.length).toFixed(1):'–';
+  const nonzero=wk.filter(w=>w.c),avgW=nonzero.length?Math.round(nonzero.reduce((a,w)=>a+w.c,0)/nonzero.length):0;
+  const tw=wk[11].c,pw=wk[10].c,jump=pw?Math.round((tw-pw)/pw*100):0;
+  return `<h1>Fremgang</h1>
+  <h2>Ugentlige fodkontakter, 12 uger</h2><div class="card">${barsHTML(wk)}
+  <p class="mute" style="margin-bottom:0">Snit ${avgW}/uge i aktive uger · gennemsnitlig RPE ${avg}</p>
+  ${pw&&jump>15?`<p class="danger" style="margin:8px 0 0;font-size:14px">Denne uge er ${jump}% over sidste uge. Mange øger højst ca. 10–15% om ugen for at skåne sener og led.</p>`:''}</div>
+  <h2>Rekorder</h2>${p.length?`<div class="card"><table><tr><th>Øvelse</th><th class="r">Bedste</th><th class="r">Dato</th></tr>${p.map(x=>`<tr><td>${esc(x.e.name)}<div class="mute">${UNIT[x.e.metric]}</div></td><td class="r"><b>${x.v}</b> cm</td><td class="r mute">${fmtDate(x.date)}</td></tr>`).join('')}</table></div>`:'<div class="empty">Indtast højde eller længde på dine sæt, så dukker rekorderne op her.</div>'}`;
+}
+
+function vMere(){
+  return `<h1>Mere</h1>
+  <h2>Dit niveau</h2><div class="card"><div class="chips">${Object.keys(LEVELS).map(k=>`<button aria-pressed="${S.level===k}" data-act="level" data-v="${k}">${LVLNAME[k]}</button>`).join('')}</div>
+  <p class="mute" style="margin-bottom:0">Sætter målet for fodkontakter pr. session (${LEVELS[S.level].join('–')}). Det er en tommelfingerregel; lyt til kroppen og hold 48 timers pause mellem hårde sessioner.</p></div>
+  <h2>Egne øvelser</h2><div class="card">
+    ${S.custom.map(e=>`<div class="row" style="padding:4px 0"><span class="sp">${esc(e.name)} <span class="mute">${e.cat}${e.metric?' · '+UNIT[e.metric]:''}${e.side?' · pr. ben':''}</span></span><button class="sm ghost danger" data-act="delEx" data-id="${e.id}" data-confirm>Slet</button></div>`).join('')}
+    <form id="exForm"><label for="exName">Navn</label><input id="exName" required maxlength="40" placeholder="F.eks. Trappespring">
+    <div class="row"><div class="sp"><label for="exCat">Kropsdel</label><select id="exCat"><option value="ben">Ben</option><option value="overkrop">Overkrop</option></select></div>
+    <div class="sp"><label for="exMetric">Mål</label><select id="exMetric"><option value="">Ingen</option><option value="height">Højde (cm)</option><option value="distance">Længde (cm)</option></select></div></div>
+    <label style="display:flex;gap:8px;align-items:center;color:var(--ink)"><input type="checkbox" id="exSide" style="width:22px;min-height:22px"> Udføres pr. ben (tæller dobbelt)</label>
+    <button class="pri" style="margin-top:10px">Tilføj øvelse</button></form></div>
+  <h2>Backup</h2><div class="card"><p class="mute" style="margin-top:0">Data ligger kun i denne browser på denne telefon. Tag en kopi jævnligt og gem den f.eks. i Noter.</p>
+    <div class="row"><button data-act="copy">Kopiér data</button><button data-act="download">Hent fil</button></div>
+    <label for="imp">Gendan: indsæt en kopi</label><textarea id="imp" placeholder='{"sessions":[...]}'></textarea>
+    <div class="row" style="margin-top:8px"><button data-act="import" data-confirm>Erstat med indsat data</button></div></div>
+  <h2>Læg på hjemmeskærmen</h2><div class="card mute">iPhone: Safari → Del → Føj til hjemmeskærm.<br>Android: Chrome → menu ⋮ → Føj til startskærm.</div>
+  <div style="margin-top:20px"><button class="ghost danger" data-act="wipe" data-confirm>Slet alle data</button></div>`;
+}
+
+function render(){
+  main.innerHTML={idag:vIdag,historik:vHistorik,fremgang:vFremgang,mere:vMere}[view]();
+  document.querySelectorAll('nav button').forEach(b=>b.toggleAttribute('aria-current',false)||b.dataset.go===view&&b.setAttribute('aria-current','page'));
+  renderSheet();
+}
+
+function renderSheet(){
+  if(!A||!A.open){sheet.innerHTML='';document.body.style.overflow='';return}
+  document.body.style.overflow='hidden';
+  const [lo,hi]=LEVELS[S.level],tot=contacts(A);
+  if(pickOpen){
+    const grp=c=>allEx().filter(e=>e.cat===c).map(e=>`<button class="pick" data-act="add" data-id="${e.id}"><span class="sp">${esc(e.name)}${e.side?' <span class="mute">pr. ben</span>':''}</span><span class="dots">${[1,2,3].map(i=>i<=e.lvl?'<b>●</b>':'○').join('')}</span></button>`).join('');
+    sheet.innerHTML=`<div class="sheet"><main><div class="top row"><h2 style="margin:0">Vælg øvelse</h2><span class="sp"></span><button data-act="closePick">Tilbage</button></div>
+    <p class="mute">Prikker = intensitet (lav, mellem, høj)</p><h2>Ben</h2>${grp('ben')}<h2>Overkrop</h2>${grp('overkrop')}</main></div>`;return;
+  }
+  sheet.innerHTML=`<div class="sheet"><main>
+  <div class="top"><div class="row"><button class="ghost" data-act="close">Luk</button><span class="sp"></span><span class="num" style="font-size:28px">${tot}</span><span class="mute">/ ${lo}–${hi}</span><span class="sp"></span><button class="pri" data-act="saveS">Gem</button></div>
+  <div class="meter" style="background:var(--line);margin-bottom:0"><i style="width:${Math.min(100,tot/(hi*1.2)*100)}%"></i><b style="left:${lo/(hi*1.2)*100}%;background:var(--ink)"></b><b style="left:${hi/(hi*1.2)*100}%;background:var(--ink)"></b></div></div>
+  <label for="sDate">Dato</label><input type="date" id="sDate" value="${A.date}" data-f="date">
+  <div style="height:12px"></div>
+  ${A.items.length?'':'<div class="empty">Tilføj din første øvelse</div>'}
+  ${A.items.map((it,i)=>{const e=exById(it.ex);return `<div class="card"><div class="row"><b class="sp">${esc(e.name)}</b><span class="mute">${itemContacts(it)} kontakter</span><button class="sm ghost danger" data-act="rmItem" data-i="${i}" aria-label="Fjern øvelse">✕</button></div>
+    ${e.side?'<div class="mute">Gentagelser pr. ben</div>':''}
+    ${it.sets.map((s,j)=>`<div class="set"><span class="mute">${j+1}</span><div class="step"><button data-act="dec" data-i="${i}" data-j="${j}" aria-label="Færre">−</button><output>${s.r}</output><button data-act="inc" data-i="${i}" data-j="${j}" aria-label="Flere">+</button></div>
+      ${e.metric?`<input inputmode="decimal" placeholder="${UNIT[e.metric]}" value="${esc(s.v)}" data-f="v" data-i="${i}" data-j="${j}" aria-label="${UNIT[e.metric]}">`:'<span></span>'}
+      <button class="sm ghost" data-act="rmSet" data-i="${i}" data-j="${j}" aria-label="Fjern sæt">✕</button></div>`).join('')}
+    <button class="sm" style="margin-top:8px" data-act="addSet" data-i="${i}">+ Sæt</button></div>`}).join('')}
+  <button class="wide" data-act="openPick">+ Tilføj øvelse</button>
+  <label>Hvor hårdt var det? (RPE 1–10)</label><div class="chips">${[...Array(10)].map((_,k)=>`<button aria-pressed="${A.rpe===k+1}" data-act="rpe" data-v="${k+1}">${k+1}</button>`).join('')}</div>
+  <label for="sNote">Note</label><textarea id="sNote" data-f="note" placeholder="Underlag, form, ømhed…">${esc(A.note)}</textarea>
+  <div class="row" style="margin-top:16px"><button class="ghost danger" data-act="discard" data-confirm>Kassér session</button></div>
+  </main></div>`;
+}
+
+const persistDraft=()=>{S.draft=A;save()};
+function openSession(s){A=s;A.open=true;pickOpen=false;persistDraft();render()}
+
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('button');if(!b)return;
+  if(b.dataset.go){view=b.dataset.go;render();scrollTo(0,0);return}
+  const act=b.dataset.act;if(!act)return;
+  if(b.hasAttribute('data-confirm')&&!b.dataset.armed){b.dataset.armed=1;b.dataset.txt=b.textContent;b.textContent='Tryk igen for at bekræfte';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=b.dataset.txt}},3000);return}
+  const i=+b.dataset.i,j=+b.dataset.j,id=b.dataset.id;
+  switch(act){
+    case 'start':openSession({id:uid(),date:today(),items:[],rpe:null,note:''});break;
+    case 'resume':A.open=true;render();break;
+    case 'close':A.open=false;persistDraft();render();toast('Sessionen er gemt som kladde');break;
+    case 'openPick':pickOpen=true;renderSheet();sheet.firstChild.scrollTo(0,0);break;
+    case 'closePick':pickOpen=false;renderSheet();break;
+    case 'add':{const e=exById(id);A.items.push({ex:id,sets:[{r:e.lvl===3?5:e.side?6:8,v:''}]});pickOpen=false;persistDraft();renderSheet();const sh=sheet.firstChild;sh.scrollTo(0,sh.scrollHeight);break}
+    case 'rmItem':A.items.splice(i,1);persistDraft();renderSheet();break;
+    case 'addSet':{const ss=A.items[i].sets,l=ss[ss.length-1]||{r:8,v:''};ss.push({r:l.r,v:''});persistDraft();renderSheet();break}
+    case 'rmSet':A.items[i].sets.splice(j,1);if(!A.items[i].sets.length)A.items.splice(i,1);persistDraft();renderSheet();break;
+    case 'inc':A.items[i].sets[j].r++;persistDraft();renderSheet();break;
+    case 'dec':A.items[i].sets[j].r=Math.max(1,A.items[i].sets[j].r-1);persistDraft();renderSheet();break;
+    case 'rpe':A.rpe=A.rpe===+b.dataset.v?null:+b.dataset.v;persistDraft();renderSheet();break;
+    case 'saveS':{if(!A.items.length){toast('Tilføj mindst én øvelse');break}const s={id:A.id,date:A.date||today(),items:A.items,rpe:A.rpe,note:A.note};S.sessions=S.sessions.filter(x=>x.id!==s.id).concat(s);A=null;S.draft=null;save();view='idag';render();toast(`Gemt: ${contacts(s)} kontakter`);break}
+    case 'discard':A=null;S.draft=null;save();render();break;
+    case 'edit':{const s=S.sessions.find(x=>x.id===id);openSession(JSON.parse(JSON.stringify({...s,sample:undefined})));break}
+    case 'dup':{const s=S.sessions.find(x=>x.id===id);openSession({id:uid(),date:today(),items:s.items.map(it=>({ex:it.ex,sets:it.sets.map(x=>({r:x.r,v:''}))})),rpe:null,note:''});break}
+    case 'del':S.sessions=S.sessions.filter(x=>x.id!==id);save();render();toast('Session slettet');break;
+    case 'clearSample':S.sessions=S.sessions.filter(x=>!x.sample);save();render();break;
+    case 'level':S.level=b.dataset.v;save();render();break;
+    case 'delEx':S.custom=S.custom.filter(e=>e.id!==id);save();render();break;
+    case 'copy':{const t=JSON.stringify({...S,draft:null});navigator.clipboard.writeText(t).then(()=>toast('Kopieret – indsæt den i Noter eller en mail')).catch(()=>{const ta=document.getElementById('imp');ta.value=t;ta.select();toast('Markeret i feltet – kopiér manuelt')});break}
+    case 'download':{try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({...S,draft:null})],{type:'application/json'}));a.download=`plyo-backup-${today()}.json`;document.body.appendChild(a);a.click();a.remove();toast('Hentes, hvis browseren tillader det')}catch(e){toast('Brug Kopiér data i stedet')}break}
+    case 'import':{try{const d=JSON.parse(document.getElementById('imp').value);if(!Array.isArray(d.sessions))throw 0;S={sessions:d.sessions,custom:d.custom||[],level:LEVELS[d.level]?d.level:'begynder',draft:null};A=null;save();render();toast(`Gendannet ${S.sessions.length} sessioner`)}catch(e){toast('Kunne ikke læse den indsatte tekst')}break}
+    case 'wipe':S={sessions:[],custom:[],level:S.level,draft:null};A=null;save();render();toast('Alle data slettet');break;
+  }
+});
+document.addEventListener('input',ev=>{
+  const el=ev.target,f=el.dataset.f;if(!f||!A)return;
+  if(f==='v')A.items[+el.dataset.i].sets[+el.dataset.j].v=el.value.replace(',','.');
+  else A[f]=el.value;
+  persistDraft();
+});
+document.addEventListener('submit',ev=>{
+  if(ev.target.id!=='exForm')return;ev.preventDefault();
+  const name=document.getElementById('exName').value.trim();if(!name)return;
+  S.custom.push({id:'c'+uid(),name,cat:document.getElementById('exCat').value,lvl:2,metric:document.getElementById('exMetric').value||null,side:document.getElementById('exSide').checked});
+  save();render();toast('Øvelse tilføjet');
+});
+render();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+}
+</script>
+</body>
+</html>
